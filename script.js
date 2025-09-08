@@ -1,4 +1,4 @@
-// Smooth scrolling for navigation links
+// UIXSHUVO Travel Website JavaScript
 document.addEventListener('DOMContentLoaded', function() {
     // Smooth scrolling for navigation links
     const navLinks = document.querySelectorAll('.nav-link');
@@ -27,12 +27,12 @@ document.addEventListener('DOMContentLoaded', function() {
             navbar.style.background = 'rgba(255, 255, 255, 0.98)';
             navbar.style.boxShadow = '0 2px 20px rgba(0, 0, 0, 0.1)';
         } else {
-            navbar.style.background = 'rgba(255, 255, 255, 0.95)';
+            navbar.style.background = 'rgba(255, 255, 255, 0.98)';
             navbar.style.boxShadow = 'none';
         }
 
-        // Hide/show navbar on scroll
-        if (scrollTop > lastScrollTop && scrollTop > 100) {
+        // Hide/show navbar on scroll (optional)
+        if (scrollTop > lastScrollTop && scrollTop > 200) {
             navbar.style.transform = 'translateY(-100%)';
         } else {
             navbar.style.transform = 'translateY(0)';
@@ -40,31 +40,62 @@ document.addEventListener('DOMContentLoaded', function() {
         lastScrollTop = scrollTop;
     });
 
-    // Animate elements on scroll
-    const observerOptions = {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-    };
+    // Hero navigation dots functionality
+    const navDots = document.querySelectorAll('.nav-dot');
+    let currentDot = 0;
 
-    const observer = new IntersectionObserver(function(entries) {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.style.opacity = '1';
-                entry.target.style.transform = 'translateY(0)';
-            }
+    navDots.forEach((dot, index) => {
+        dot.addEventListener('click', function() {
+            // Remove active class from all dots
+            navDots.forEach(d => d.classList.remove('active'));
+            // Add active class to clicked dot
+            this.classList.add('active');
+            currentDot = index;
+            
+            // Optional: Change content based on dot selection
+            updateHeroContent(index);
         });
-    }, observerOptions);
-
-    // Observe feature cards
-    const featureCards = document.querySelectorAll('.feature-card');
-    featureCards.forEach((card, index) => {
-        card.style.opacity = '0';
-        card.style.transform = 'translateY(30px)';
-        card.style.transition = `all 0.6s ease ${index * 0.1}s`;
-        observer.observe(card);
     });
 
-    // Button click animations
+    // Auto-rotate dots every 5 seconds
+    setInterval(() => {
+        navDots.forEach(d => d.classList.remove('active'));
+        currentDot = (currentDot + 1) % navDots.length;
+        navDots[currentDot].classList.add('active');
+        updateHeroContent(currentDot);
+    }, 5000);
+
+    function updateHeroContent(index) {
+        const heroTitle = document.querySelector('.hero-title');
+        const heroTagline = document.querySelector('.hero-tagline');
+        
+        const content = [
+            {
+                tagline: 'ELEVATE YOUR TRAVEL JOURNEY',
+                title: 'Experience<br>The Magic Of<br>Flight!'
+            },
+            {
+                tagline: 'DISCOVER AMAZING DESTINATIONS',
+                title: 'Explore<br>The World<br>Together!'
+            },
+            {
+                tagline: 'CREATE UNFORGETTABLE MEMORIES',
+                title: 'Journey<br>Beyond<br>Boundaries!'
+            }
+        ];
+
+        if (heroTitle && heroTagline) {
+            heroTagline.textContent = content[index].tagline;
+            heroTitle.innerHTML = content[index].title;
+            
+            // Add animation class
+            heroTitle.style.animation = 'none';
+            heroTitle.offsetHeight; // Trigger reflow
+            heroTitle.style.animation = 'fadeInUp 0.8s ease-out';
+        }
+    }
+
+    // Button interactions with ripple effect
     const buttons = document.querySelectorAll('button');
     buttons.forEach(button => {
         button.addEventListener('click', function(e) {
@@ -93,12 +124,215 @@ document.addEventListener('DOMContentLoaded', function() {
             this.appendChild(ripple);
             
             setTimeout(() => {
-                ripple.remove();
+                if (ripple.parentNode) {
+                    ripple.remove();
+                }
             }, 600);
         });
     });
 
-    // Add CSS for ripple animation
+    // Play button functionality
+    const playButton = document.querySelector('.btn-play');
+    if (playButton) {
+        playButton.addEventListener('click', function() {
+            // Add rotation animation
+            const playIcon = this.querySelector('.play-icon');
+            playIcon.style.transform = 'rotate(360deg)';
+            playIcon.style.transition = 'transform 0.5s ease';
+            
+            setTimeout(() => {
+                playIcon.style.transform = 'rotate(0deg)';
+            }, 500);
+            
+            // Simulate video modal (you can replace this with actual video functionality)
+            showVideoModal();
+        });
+    }
+
+    function showVideoModal() {
+        // Create modal overlay
+        const modal = document.createElement('div');
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            animation: fadeIn 0.3s ease;
+        `;
+
+        const modalContent = document.createElement('div');
+        modalContent.style.cssText = `
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 400px;
+            animation: slideUp 0.3s ease;
+        `;
+
+        modalContent.innerHTML = `
+            <h3 style="margin-bottom: 1rem; color: #1f2937;">Travel Video</h3>
+            <p style="margin-bottom: 2rem; color: #6b7280;">Experience the magic of travel with our promotional video.</p>
+            <button onclick="this.closest('.modal-overlay').remove()" style="
+                background: #3b82f6;
+                color: white;
+                border: none;
+                padding: 0.75rem 2rem;
+                border-radius: 25px;
+                font-weight: 600;
+                cursor: pointer;
+            ">Close</button>
+        `;
+
+        modal.className = 'modal-overlay';
+        modal.appendChild(modalContent);
+        document.body.appendChild(modal);
+
+        // Close modal on overlay click
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                modal.remove();
+            }
+        });
+    }
+
+    // Animate elements on scroll
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+
+    // Observe elements for scroll animations
+    const animatedElements = document.querySelectorAll('.know-more-content, .awesome-places, .partner-logo');
+    animatedElements.forEach((element, index) => {
+        element.style.opacity = '0';
+        element.style.transform = 'translateY(30px)';
+        element.style.transition = `all 0.8s ease ${index * 0.1}s`;
+        observer.observe(element);
+    });
+
+    // Parallax effect for hero background
+    window.addEventListener('scroll', function() {
+        const scrolled = window.pageYOffset;
+        const heroSection = document.querySelector('.hero');
+        const airplaneContainer = document.querySelector('.airplane-container');
+        
+        if (heroSection && airplaneContainer) {
+            const rate = scrolled * -0.3;
+            heroSection.style.transform = `translateY(${rate}px)`;
+            
+            // Slight rotation effect on airplane
+            const rotationRate = scrolled * 0.02;
+            airplaneContainer.style.transform = `translateY(${rate * 0.5}px) rotateZ(${rotationRate}deg)`;
+        }
+    });
+
+    // Smooth page transitions
+    window.addEventListener('beforeunload', function() {
+        document.body.style.opacity = '0';
+        document.body.style.transition = 'opacity 0.3s ease';
+    });
+
+    // Book Trip button functionality
+    const bookTripBtns = document.querySelectorAll('.book-trip-btn, .btn-primary');
+    bookTripBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            // Add loading animation
+            const originalText = this.textContent;
+            this.textContent = 'Loading...';
+            this.style.opacity = '0.7';
+            
+            setTimeout(() => {
+                this.textContent = originalText;
+                this.style.opacity = '1';
+                
+                // Show booking modal or redirect
+                showBookingModal();
+            }, 1500);
+        });
+    });
+
+    function showBookingModal() {
+        const modal = document.createElement('div');
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            animation: fadeIn 0.3s ease;
+        `;
+
+        const modalContent = document.createElement('div');
+        modalContent.style.cssText = `
+            background: white;
+            padding: 3rem;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 500px;
+            animation: slideUp 0.3s ease;
+        `;
+
+        modalContent.innerHTML = `
+            <div style="width: 60px; height: 60px; background: #3b82f6; border-radius: 50%; margin: 0 auto 1.5rem; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-plane" style="color: white; font-size: 1.5rem;"></i>
+            </div>
+            <h3 style="margin-bottom: 1rem; color: #1f2937; font-size: 1.5rem;">Book Your Trip</h3>
+            <p style="margin-bottom: 2rem; color: #6b7280; line-height: 1.6;">Ready to embark on your next adventure? Our travel experts are here to help you plan the perfect journey.</p>
+            <div style="display: flex; gap: 1rem; justify-content: center;">
+                <button onclick="this.closest('.modal-overlay').remove()" style="
+                    background: #3b82f6;
+                    color: white;
+                    border: none;
+                    padding: 0.75rem 2rem;
+                    border-radius: 25px;
+                    font-weight: 600;
+                    cursor: pointer;
+                ">Get Started</button>
+                <button onclick="this.closest('.modal-overlay').remove()" style="
+                    background: transparent;
+                    color: #6b7280;
+                    border: 2px solid #d1d5db;
+                    padding: 0.75rem 2rem;
+                    border-radius: 25px;
+                    font-weight: 600;
+                    cursor: pointer;
+                ">Later</button>
+            </div>
+        `;
+
+        modal.className = 'modal-overlay';
+        modal.appendChild(modalContent);
+        document.body.appendChild(modal);
+
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                modal.remove();
+            }
+        });
+    }
+
+    // Add CSS animations
     const style = document.createElement('style');
     style.textContent = `
         @keyframes ripple {
@@ -107,105 +341,82 @@ document.addEventListener('DOMContentLoaded', function() {
                 opacity: 0;
             }
         }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .modal-overlay {
+            backdrop-filter: blur(5px);
+        }
     `;
     document.head.appendChild(style);
 
-    // Floating particles animation for hero section
-    function createFloatingParticle() {
-        const particle = document.createElement('div');
-        particle.className = 'floating-particle';
-        particle.style.cssText = `
-            position: absolute;
-            width: 6px;
-            height: 6px;
-            background: linear-gradient(45deg, #3b82f6, #8b5cf6);
-            border-radius: 50%;
-            opacity: 0.6;
-            pointer-events: none;
-            animation: floatUp 4s ease-out infinite;
-        `;
+    // Add loading state to page
+    window.addEventListener('load', function() {
+        document.body.style.opacity = '1';
         
-        // Random position
-        particle.style.left = Math.random() * 100 + '%';
-        particle.style.animationDelay = Math.random() * 4 + 's';
-        
-        const heroSection = document.querySelector('.hero');
-        if (heroSection) {
-            heroSection.appendChild(particle);
+        // Animate elements on page load
+        const heroElements = document.querySelectorAll('.hero-content > *');
+        heroElements.forEach((element, index) => {
+            element.style.opacity = '0';
+            element.style.transform = 'translateY(30px)';
             
             setTimeout(() => {
-                particle.remove();
-            }, 4000);
-        }
-    }
-
-    // Create particles periodically
-    setInterval(createFloatingParticle, 800);
-
-    // Add floating particles CSS animation
-    const particleStyle = document.createElement('style');
-    particleStyle.textContent = `
-        @keyframes floatUp {
-            0% {
-                transform: translateY(100vh) scale(0);
-                opacity: 0;
-            }
-            10% {
-                opacity: 0.6;
-                transform: scale(1);
-            }
-            90% {
-                opacity: 0.6;
-            }
-            100% {
-                transform: translateY(-100px) scale(0);
-                opacity: 0;
-            }
-        }
-        
-        .floating-particle {
-            z-index: 1;
-        }
-    `;
-    document.head.appendChild(particleStyle);
-
-    // Add hover effects to feature cards
-    featureCards.forEach(card => {
-        card.addEventListener('mouseenter', function() {
-            this.style.background = 'linear-gradient(135deg, #f8fafc, #e2e8f0)';
-        });
-        
-        card.addEventListener('mouseleave', function() {
-            this.style.background = 'white';
+                element.style.transition = 'all 0.8s ease';
+                element.style.opacity = '1';
+                element.style.transform = 'translateY(0)';
+            }, index * 200);
         });
     });
 
-    // Add loading animation
-    window.addEventListener('load', function() {
-        document.body.style.opacity = '0';
-        document.body.style.transition = 'opacity 0.5s ease';
+    // Add hover effects to interactive elements
+    const interactiveElements = document.querySelectorAll('.place-image, .social-icon, .partner-logo');
+    interactiveElements.forEach(element => {
+        element.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-5px) scale(1.05)';
+            this.style.transition = 'all 0.3s ease';
+        });
         
-        setTimeout(() => {
-            document.body.style.opacity = '1';
-        }, 100);
+        element.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) scale(1)';
+        });
     });
 
-    // Add scroll progress indicator
-    const progressBar = document.createElement('div');
-    progressBar.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 0%;
-        height: 3px;
-        background: linear-gradient(90deg, #2563eb, #3b82f6);
-        z-index: 9999;
-        transition: width 0.3s ease;
-    `;
-    document.body.appendChild(progressBar);
-
-    window.addEventListener('scroll', function() {
-        const scrolled = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
-        progressBar.style.width = scrolled + '%';
+    // Add keyboard navigation
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            const modals = document.querySelectorAll('.modal-overlay');
+            modals.forEach(modal => modal.remove());
+        }
     });
+
+    console.log('UIXSHUVO Travel Website loaded successfully! ✈️');
 });
